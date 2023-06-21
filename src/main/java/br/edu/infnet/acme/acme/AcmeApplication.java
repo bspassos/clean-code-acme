@@ -43,7 +43,10 @@ public class AcmeApplication {
 		pagamentos.add(new Pagamento(Arrays.asList(produtos.get(2)), LocalDate.now().minusMonths(1), clientes.get(0)));
 
 		System.out.println("2 - Ordene e imprima os pagamentos pela data de compra");
+
 		pagamentos.stream().sorted(Comparator.comparing(Pagamento::getDataCompra)).forEach(System.out::println);
+
+		System.out.println("----------------------------------------------------------------------------------------");
 
 		System.out.println("3 - Calcule e Imprima a soma dos valores de um pagamento com optional");
 		Optional<BigDecimal> somaPrecosOptional = pagamentos.get(0)
@@ -52,6 +55,8 @@ public class AcmeApplication {
 				.map(Produto::getPreco)
 				.reduce(BigDecimal::add);
 		System.out.println(somaPrecosOptional.orElse(BigDecimal.ZERO));
+
+		System.out.println("----------------------------------------------------------------------------------------");
 
 		System.out.println("3 - Calcule e Imprima a soma dos valores de um pagamento recebendo um Double diretamente");
 		System.out.println(
@@ -63,11 +68,15 @@ public class AcmeApplication {
 						.doubleValue()
 		);
 
+		System.out.println("----------------------------------------------------------------------------------------");
+
 		System.out.println("4 - Calcule o Valor de todos os pagamentos da Lista de pagamentos");
 		BigDecimal totalTodosPagamentos = pagamentos.stream()
 				.flatMap(pagamento -> pagamento.getProdutos().stream())
 				.map(Produto::getPreco).reduce(BigDecimal.ZERO, BigDecimal::add);
 		System.out.println(totalTodosPagamentos);
+
+		System.out.println("----------------------------------------------------------------------------------------");
 
 		System.out.println("5 - Imprima a quantidade de cada Produto vendido.");
 		pagamentos.stream()
@@ -75,16 +84,42 @@ public class AcmeApplication {
 				.collect(Collectors.groupingBy(Produto::getNome, Collectors.counting()))
 				.forEach((key, value) -> System.out.println(key + ": " + value));
 
+		System.out.println("----------------------------------------------------------------------------------------");
+
 		System.out.println("6 - Crie um Mapa de <Cliente, List<Produto> , onde Cliente pode ser o nome do cliente.");
 		Map<String, List<Produto>> clientesProdutos = pagamentos.stream()
 				.collect(Collectors.groupingBy(
 						pagamento -> pagamento.getCliente().getNome(),
 						Collectors.flatMapping(pagamento -> pagamento.getProdutos().stream(), Collectors.toList())
 				));
-		//clientesProdutos.forEach((cliente, produtosCliente) -> System.out.println(cliente + " " + produtosCliente));
+		clientesProdutos.forEach((cliente, produtosCliente) -> System.out.println(cliente + " " + produtosCliente));
+
+		System.out.println("----------------------------------------------------------------------------------------");
 
 		System.out.println("7 - Qual cliente gastou mais?");
+		Optional<Map.Entry<String, List<Produto>>> clienteGastouMais = clientesProdutos.entrySet().stream()
+				.max(Comparator.comparing(entry -> entry.getValue().stream()
+						.map(Produto::getPreco)
+						.reduce(BigDecimal.ZERO, BigDecimal::add)));
 
+		if(clienteGastouMais.isPresent()){
+			System.out.println(clienteGastouMais.get().getKey());
+		}else{
+			System.out.println("Sem informações");
+		}
+
+		System.out.println("----------------------------------------------------------------------------------------");
+
+		System.out.println("8 - Quanto foi faturado em um determinado mês?");
+		int month = 6;
+		BigDecimal totalFaturadoMes = pagamentos.stream()
+				.filter(pagamento -> pagamento.getDataCompra().getMonthValue() == month)
+				.flatMap(pagamento -> pagamento.getProdutos().stream())
+				.map(Produto::getPreco)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		System.out.println(totalFaturadoMes);
+
+		System.out.println("----------------------------------------------------------------------------------------");
 
 
 	}
