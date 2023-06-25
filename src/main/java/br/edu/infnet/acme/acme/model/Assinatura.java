@@ -3,6 +3,7 @@ package br.edu.infnet.acme.acme.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 public class Assinatura {
 
@@ -46,5 +47,14 @@ public class Assinatura {
 
     public Cliente getCliente() {
         return cliente;
+    }
+
+    @Override
+    public String toString() {
+        return "Assinatura - " +
+                mensalidade + " - " +
+                begin + " - " +
+                end + " - " +
+                cliente.getNome();
     }
 }

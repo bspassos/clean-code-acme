@@ -1,5 +1,6 @@
 package br.edu.infnet.acme.acme;
 
+import br.edu.infnet.acme.acme.model.Assinatura;
 import br.edu.infnet.acme.acme.model.Cliente;
 import br.edu.infnet.acme.acme.model.Pagamento;
 import br.edu.infnet.acme.acme.model.Produto;
@@ -10,6 +11,8 @@ import org.w3c.dom.ls.LSOutput;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -121,6 +124,63 @@ public class AcmeApplication {
 
 		System.out.println("----------------------------------------------------------------------------------------");
 
+		System.out.println("9 - Crie 3 assinaturas com assinaturas de 99.98 reais, sendo 2 deles com assinaturas encerradas");
+
+		List<Assinatura> assinaturas = new ArrayList<>();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		assinaturas.add(new Assinatura(new BigDecimal("99.98"),
+				LocalDate.parse("2023-01-01", formatter),
+				LocalDate.parse("2023-05-31", formatter), clientes.get(0)));
+		assinaturas.add(new Assinatura(new BigDecimal("99.98"),
+				LocalDate.parse("2023-03-01", formatter),
+				LocalDate.parse("2023-06-30", formatter), clientes.get(1)));
+		assinaturas.add(new Assinatura(new BigDecimal("99.98"),
+				LocalDate.parse("2023-04-01", formatter), clientes.get(2)));
+
+		assinaturas.forEach(System.out::println);
+
+		System.out.println("----------------------------------------------------------------------------------------");
+
+		System.out.println("10 - Imprima o tempo em meses de alguma assinatura ainda ativa.");
+
+		assinaturas.stream()
+				.filter(assinatura -> assinatura.getEnd() == null)
+				.forEach(
+						assinatura -> System.out.println(
+								"Assinatura " + assinatura.getBegin() + " - " +
+										Period.between(assinatura.getBegin(), LocalDate.now()).toTotalMonths() + " meses"
+						)
+				);
+
+		System.out.println("----------------------------------------------------------------------------------------");
+
+		System.out.println("11 - Imprima o tempo de meses entre o start e end de todas assinaturas. Não utilize IFs para assinaturas sem end.");
+
+		assinaturas
+				.forEach(
+						assinatura -> System.out.println(
+								"Assinatura " + assinatura.getBegin() + " - " + assinatura.getEnd() + " : " +
+										Period.between(assinatura.getBegin(),
+												assinatura.getEnd() != null ? assinatura.getEnd() : LocalDate.now()
+										).toTotalMonths() + " meses"
+						)
+				);
+
+		System.out.println("----------------------------------------------------------------------------------------");
+
+		System.out.println("12 - Calcule o valor pago em cada assinatura até o momento. ");
+
+		Map<Assinatura, BigDecimal> valoresPagosAssinaturas = assinaturas.stream()
+				.collect(Collectors.toMap(
+						assinatura -> assinatura,
+						assinatura -> {
+							long meses = Period.between(assinatura.getBegin(),
+									assinatura.getEnd() != null ? assinatura.getEnd() : LocalDate.now()
+							).toTotalMonths();
+							return assinatura.getMensalidade().multiply(BigDecimal.valueOf(meses));
+						}
+				));
+		valoresPagosAssinaturas.forEach((assinatura, total) -> System.out.println(assinatura + " => " + total));
 
 	}
 
