@@ -2,8 +2,7 @@ package br.edu.infnet.acme.acme.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 public class Assinatura {
 
@@ -11,21 +10,21 @@ public class Assinatura {
 
     LocalDate begin;
 
-    LocalDate end;
+    Optional<LocalDate> end;
 
     Cliente cliente;
 
     public Assinatura(BigDecimal mensalidade, LocalDate begin, Cliente cliente) {
         this.mensalidade = mensalidade;
         this.begin = begin;
-        this.end = end;
+        this.end = Optional.empty();
         this.cliente = cliente;
     }
 
     public Assinatura(BigDecimal mensalidade, LocalDate begin, LocalDate end, Cliente cliente) {
         this.mensalidade = mensalidade;
         this.begin = begin;
-        this.end = end;
+        this.end = Optional.of(end);
         this.cliente = cliente;
     }
 
@@ -37,12 +36,12 @@ public class Assinatura {
         return begin;
     }
 
-    public LocalDate getEnd() {
+    public Optional<LocalDate> getEnd() {
         return end;
     }
 
     public void setEnd(LocalDate end) {
-        this.end = end;
+        this.end = Optional.ofNullable(end);
     }
 
     public Cliente getCliente() {

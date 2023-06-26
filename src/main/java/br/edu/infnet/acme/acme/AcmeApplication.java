@@ -160,8 +160,7 @@ public class AcmeApplication {
 				.forEach(
 						assinatura -> System.out.println(
 								"Assinatura " + assinatura.getBegin() + " - " + assinatura.getEnd() + " : " +
-										Period.between(assinatura.getBegin(),
-												assinatura.getEnd() != null ? assinatura.getEnd() : LocalDate.now()
+										Period.between(assinatura.getBegin(), assinatura.getEnd().orElse(LocalDate.now())
 										).toTotalMonths() + " meses"
 						)
 				);
@@ -174,8 +173,7 @@ public class AcmeApplication {
 				.collect(Collectors.toMap(
 						assinatura -> assinatura,
 						assinatura -> {
-							long meses = Period.between(assinatura.getBegin(),
-									assinatura.getEnd() != null ? assinatura.getEnd() : LocalDate.now()
+							long meses = Period.between(assinatura.getBegin(), assinatura.getEnd().orElse(LocalDate.now())
 							).toTotalMonths();
 							return assinatura.getMensalidade().multiply(BigDecimal.valueOf(meses));
 						}
