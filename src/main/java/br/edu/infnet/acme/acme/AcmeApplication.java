@@ -4,6 +4,7 @@ import br.edu.infnet.acme.acme.model.Assinatura;
 import br.edu.infnet.acme.acme.model.Cliente;
 import br.edu.infnet.acme.acme.model.Pagamento;
 import br.edu.infnet.acme.acme.model.Produto;
+import br.edu.infnet.acme.acme.model.enuns.TipoAssinatura;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -90,12 +91,12 @@ public class AcmeApplication {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		assinaturas.add(new Assinatura(new BigDecimal("99.98"),
 				LocalDate.parse("2023-01-01", formatter),
-				LocalDate.parse("2023-05-31", formatter), clientes.get(0)));
+				LocalDate.parse("2023-05-31", formatter), clientes.get(0), TipoAssinatura.ANUAL));
 		assinaturas.add(new Assinatura(new BigDecimal("99.98"),
 				LocalDate.parse("2023-03-01", formatter),
-				LocalDate.parse("2023-06-30", formatter), clientes.get(1)));
+				LocalDate.parse("2023-06-30", formatter), clientes.get(1), TipoAssinatura.SEMESTRAL));
 		assinaturas.add(new Assinatura(new BigDecimal("99.98"),
-				LocalDate.parse("2023-04-01", formatter), clientes.get(2)));
+				LocalDate.parse("2023-04-01", formatter), clientes.get(2), TipoAssinatura.TRIMESTRAL));
 
 		assinaturas.forEach(System.out::println);
 
@@ -115,6 +116,28 @@ public class AcmeApplication {
 		System.out.println("12 - Calcule o valor pago em cada assinatura até o momento. ");
 		Assinatura.valoresPagosAssinaturas(assinaturas)
 				.forEach((assinatura, total) -> System.out.println(assinatura + " => " + total));
+
+		System.out.println("========================================================================================");
+		System.out.println("======================================Entregável 2======================================");
+		System.out.println("========================================================================================");
+
+		System.out.println("Crie 3 tipos de assinatura, anual, semestral e trimestral. \n" +
+				"Crie um método para calcular uma taxa para cada assinatura.\n" +
+				"Obs. Imagine que esse método rodará todo último dia do mes.\n" +
+				"\tAnual -> Isento da taxa.\n" +
+				"\tSemestral -> 3% do valor total da assinatura até o presente momento.\n" +
+				"\tTrimestral -> 5% do valor total da assinatura até o presente momento.\n");
+
+		assinaturas.forEach(assinatura -> {
+			System.out.println(assinatura + " - TAXA: " + assinatura.calcularTaxa());
+		});
+
+		System.out.println("----------------------------------------------------------------------------------------");
+
+		System.out.println("Crie um mecanismo para validar clientes que tentarem fazer compras com assinatura em atraso e não deixá-los comprar.");
+		assinaturas.get(0).setPagamentoAtrasado(true);
+		pagamentos.add(new Pagamento(Collections.singletonList(produtos.get(2)), LocalDate.now(), clientes.get(0)));
+
 
 	}
 

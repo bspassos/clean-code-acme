@@ -11,6 +11,8 @@ public class Cliente {
 
     String nome;
 
+    Assinatura assinatura;
+
     public Cliente(String nome){
         this.nome = nome;
     }
@@ -39,6 +41,14 @@ public class Cliente {
 
         return "Sem informações";
 
+    }
+
+    public void adicionarAssinatura(Assinatura assinatura){
+        this.assinatura = assinatura;
+    }
+
+    public boolean podeFazerCompra() {
+        return assinatura == null || !assinatura.getPagamentoAtrasado();
     }
 
 }

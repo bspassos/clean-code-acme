@@ -16,9 +16,14 @@ public class Pagamento {
     Cliente cliente;
 
     public Pagamento(List<Produto> produtos, LocalDate dataCompra, Cliente cliente) {
-        this.produtos = produtos;
-        this.dataCompra = dataCompra;
-        this.cliente = cliente;
+        if(cliente.podeFazerCompra()) {
+            this.produtos = produtos;
+            this.dataCompra = dataCompra;
+            this.cliente = cliente;
+        }else{
+            System.out.println(cliente.getNome() + " não pode comprar nenhum produto pois possui pagamentos de assinatura em atraso!");
+        }
+
     }
 
     public List<Produto> getProdutos() {
