@@ -6,10 +6,8 @@ import br.edu.infnet.acme.acme.model.Pagamento;
 import br.edu.infnet.acme.acme.model.Produto;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.w3c.dom.ls.LSOutput;
 
 import java.math.BigDecimal;
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
@@ -46,81 +44,43 @@ public class AcmeApplication {
 		pagamentos.add(new Pagamento(Arrays.asList(produtos.get(2)), LocalDate.now().minusMonths(1), clientes.get(0)));
 
 		System.out.println("2 - Ordene e imprima os pagamentos pela data de compra");
-
-		pagamentos.stream().sorted(Comparator.comparing(Pagamento::getDataCompra)).forEach(System.out::println);
+		Pagamento.ordenadosPorDataCompra(pagamentos);
 
 		System.out.println("----------------------------------------------------------------------------------------");
 
 		System.out.println("3 - Calcule e Imprima a soma dos valores de um pagamento com optional");
-		Optional<BigDecimal> somaPrecosOptional = pagamentos.get(0)
-				.getProdutos()
-				.stream()
-				.map(Produto::getPreco)
-				.reduce(BigDecimal::add);
-		System.out.println(somaPrecosOptional.orElse(BigDecimal.ZERO));
+		System.out.println(pagamentos.get(0).somaDosValoresComOptional());
 
 		System.out.println("----------------------------------------------------------------------------------------");
 
 		System.out.println("3 - Calcule e Imprima a soma dos valores de um pagamento recebendo um Double diretamente");
-		System.out.println(
-				pagamentos.get(0)
-						.getProdutos()
-						.stream()
-						.map(Produto::getPreco)
-						.reduce(BigDecimal.ZERO, BigDecimal::add)
-						.doubleValue()
-		);
+		System.out.println(pagamentos.get(0).somaDosValoresComDouble());
 
 		System.out.println("----------------------------------------------------------------------------------------");
 
 		System.out.println("4 - Calcule o Valor de todos os pagamentos da Lista de pagamentos");
-		BigDecimal totalTodosPagamentos = pagamentos.stream()
-				.flatMap(pagamento -> pagamento.getProdutos().stream())
-				.map(Produto::getPreco).reduce(BigDecimal.ZERO, BigDecimal::add);
-		System.out.println(totalTodosPagamentos);
+		System.out.println(Pagamento.totalTodosPagamentos(pagamentos));
 
 		System.out.println("----------------------------------------------------------------------------------------");
 
 		System.out.println("5 - Imprima a quantidade de cada Produto vendido.");
-		pagamentos.stream()
-				.flatMap(pagamento -> pagamento.getProdutos().stream())
-				.collect(Collectors.groupingBy(Produto::getNome, Collectors.counting()))
-				.forEach((key, value) -> System.out.println(key + ": " + value));
+		Produto.qtdProdutosVendidos(pagamentos);
 
 		System.out.println("----------------------------------------------------------------------------------------");
 
 		System.out.println("6 - Crie um Mapa de <Cliente, List<Produto> , onde Cliente pode ser o nome do cliente.");
-		Map<String, List<Produto>> clientesProdutos = pagamentos.stream()
-				.collect(Collectors.groupingBy(
-						pagamento -> pagamento.getCliente().getNome(),
-						Collectors.flatMapping(pagamento -> pagamento.getProdutos().stream(), Collectors.toList())
-				));
+		Map<String, List<Produto>> clientesProdutos = Cliente.clientesProdutos(pagamentos);
 		clientesProdutos.forEach((cliente, produtosCliente) -> System.out.println(cliente + " " + produtosCliente));
 
 		System.out.println("----------------------------------------------------------------------------------------");
 
 		System.out.println("7 - Qual cliente gastou mais?");
-		Optional<Map.Entry<String, List<Produto>>> clienteGastouMais = clientesProdutos.entrySet().stream()
-				.max(Comparator.comparing(entry -> entry.getValue().stream()
-						.map(Produto::getPreco)
-						.reduce(BigDecimal.ZERO, BigDecimal::add)));
-
-		if(clienteGastouMais.isPresent()){
-			System.out.println(clienteGastouMais.get().getKey());
-		}else{
-			System.out.println("Sem informações");
-		}
+		System.out.println(Cliente.clienteGastouMais(clientesProdutos));
 
 		System.out.println("----------------------------------------------------------------------------------------");
 
 		System.out.println("8 - Quanto foi faturado em um determinado mês?");
-		int month = 6;
-		BigDecimal totalFaturadoMes = pagamentos.stream()
-				.filter(pagamento -> pagamento.getDataCompra().getMonthValue() == month)
-				.flatMap(pagamento -> pagamento.getProdutos().stream())
-				.map(Produto::getPreco)
-				.reduce(BigDecimal.ZERO, BigDecimal::add);
-		System.out.println(totalFaturadoMes);
+		System.out.println(Pagamento.totalFaturadoMes(pagamentos, 6));
 
 		System.out.println("----------------------------------------------------------------------------------------");
 
@@ -142,43 +102,19 @@ public class AcmeApplication {
 		System.out.println("----------------------------------------------------------------------------------------");
 
 		System.out.println("10 - Imprima o tempo em meses de alguma assinatura ainda ativa.");
-
-		assinaturas.stream()
-				.filter(assinatura -> assinatura.getEnd() == null)
-				.forEach(
-						assinatura -> System.out.println(
-								"Assinatura " + assinatura.getBegin() + " - " +
-										Period.between(assinatura.getBegin(), LocalDate.now()).toTotalMonths() + " meses"
-						)
-				);
+		Assinatura.imprimirTempoMesesAtivas(assinaturas);
 
 		System.out.println("----------------------------------------------------------------------------------------");
 
 		System.out.println("11 - Imprima o tempo de meses entre o start e end de todas assinaturas. Não utilize IFs para assinaturas sem end.");
+		Assinatura.imprimirTempoMeses(assinaturas);
 
-		assinaturas
-				.forEach(
-						assinatura -> System.out.println(
-								"Assinatura " + assinatura.getBegin() + " - " + assinatura.getEnd() + " : " +
-										Period.between(assinatura.getBegin(), assinatura.getEnd().orElse(LocalDate.now())
-										).toTotalMonths() + " meses"
-						)
-				);
 
 		System.out.println("----------------------------------------------------------------------------------------");
 
 		System.out.println("12 - Calcule o valor pago em cada assinatura até o momento. ");
-
-		Map<Assinatura, BigDecimal> valoresPagosAssinaturas = assinaturas.stream()
-				.collect(Collectors.toMap(
-						assinatura -> assinatura,
-						assinatura -> {
-							long meses = Period.between(assinatura.getBegin(), assinatura.getEnd().orElse(LocalDate.now())
-							).toTotalMonths();
-							return assinatura.getMensalidade().multiply(BigDecimal.valueOf(meses));
-						}
-				));
-		valoresPagosAssinaturas.forEach((assinatura, total) -> System.out.println(assinatura + " => " + total));
+		Assinatura.valoresPagosAssinaturas(assinaturas)
+				.forEach((assinatura, total) -> System.out.println(assinatura + " => " + total));
 
 	}
 

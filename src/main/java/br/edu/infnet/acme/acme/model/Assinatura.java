@@ -2,7 +2,11 @@ package br.edu.infnet.acme.acme.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Period;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class Assinatura {
 
@@ -55,5 +59,39 @@ public class Assinatura {
                 begin + " - " +
                 end + " - " +
                 cliente.getNome();
+    }
+
+    public static void imprimirTempoMesesAtivas(List<Assinatura> assinaturas){
+        assinaturas.stream()
+                .filter(assinatura -> assinatura.getEnd().isEmpty())
+                .forEach(
+                        assinatura -> System.out.println(
+                                "Assinatura " + assinatura.getBegin() + " - " +
+                                        Period.between(assinatura.getBegin(), LocalDate.now()).toTotalMonths() + " meses"
+                        )
+                );
+    }
+
+    public static void imprimirTempoMeses(List<Assinatura> assinaturas){
+        assinaturas
+                .forEach(
+                        assinatura -> System.out.println(
+                                "Assinatura " + assinatura.getBegin() + " - " + assinatura.getEnd() + " : " +
+                                        Period.between(assinatura.getBegin(), assinatura.getEnd().orElse(LocalDate.now())
+                                        ).toTotalMonths() + " meses"
+                        )
+                );
+    }
+
+    public static Map<Assinatura, BigDecimal> valoresPagosAssinaturas(List<Assinatura> assinaturas){
+        return assinaturas.stream()
+                .collect(Collectors.toMap(
+                        assinatura -> assinatura,
+                        assinatura -> {
+                            long meses = Period.between(assinatura.getBegin(), assinatura.getEnd().orElse(LocalDate.now())
+                            ).toTotalMonths();
+                            return assinatura.getMensalidade().multiply(BigDecimal.valueOf(meses));
+                        }
+                ));
     }
 }
