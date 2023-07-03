@@ -4,8 +4,8 @@
 
 ### SonarQube
 
-[Print1](sonarqube/sonarqube1.png)
+[Print1](sonar/sonarqube1.png)
 
-[Print2](sonarqube/sonarqube2.png)
+[Print2](sonar/sonarqube2.png)
 
-[Print3](sonarqube/sonarqube3.png)
+[Print3](sonar/sonarqube3.png)
