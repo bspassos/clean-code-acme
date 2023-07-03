@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class Assinatura {
 
     BigDecimal mensalidade;
@@ -23,6 +26,8 @@ public class Assinatura {
     TipoAssinatura tipoAssinatura;
 
     Boolean pagamentoAtrasado = false;
+
+    private static final Logger logger = LogManager.getLogger(Assinatura.class);
 
 
     public Assinatura(BigDecimal mensalidade, LocalDate begin, Cliente cliente, TipoAssinatura tipoAssinatura) {
@@ -94,20 +99,18 @@ public class Assinatura {
         assinaturas.stream()
                 .filter(assinatura -> assinatura.getEnd().isEmpty())
                 .forEach(
-                        assinatura -> System.out.println(
-                                "Assinatura " + assinatura.getBegin() + " - " +
-                                        Period.between(assinatura.getBegin(), LocalDate.now()).toTotalMonths() + " meses"
-                        )
+                        assinatura -> logger.info("Assinatura {} - {} meses", assinatura.getBegin(),
+                                        Period.between(assinatura.getBegin(), LocalDate.now()).toTotalMonths())
                 );
     }
 
     public static void imprimirTempoMeses(List<Assinatura> assinaturas){
         assinaturas
                 .forEach(
-                        assinatura -> System.out.println(
-                                "Assinatura " + assinatura.getBegin() + " - " + assinatura.getEnd() + " : " +
+                        assinatura -> logger.info("Assinatura {} - {} : {} meses", assinatura.getBegin(),
+                                        assinatura.getEnd(),
                                         Period.between(assinatura.getBegin(), assinatura.getEnd().orElse(LocalDate.now())
-                                        ).toTotalMonths() + " meses"
+                                        ).toTotalMonths()
                         )
                 );
     }
@@ -126,7 +129,6 @@ public class Assinatura {
 
     public BigDecimal calcularTaxa() {
         BigDecimal taxa = BigDecimal.ZERO;
-        LocalDate currentDate = LocalDate.now();
 
         if (tipoAssinatura == TipoAssinatura.SEMESTRAL) {
             taxa = mensalidade.multiply(BigDecimal.valueOf(0.03));

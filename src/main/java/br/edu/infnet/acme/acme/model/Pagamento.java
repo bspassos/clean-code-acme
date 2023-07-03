@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class Pagamento {
 
     List<Produto> produtos;
@@ -15,13 +18,15 @@ public class Pagamento {
 
     Cliente cliente;
 
+    private static final Logger logger = LogManager.getLogger(Pagamento.class);
+
     public Pagamento(List<Produto> produtos, LocalDate dataCompra, Cliente cliente) {
         if(cliente.podeFazerCompra()) {
             this.produtos = produtos;
             this.dataCompra = dataCompra;
             this.cliente = cliente;
         }else{
-            System.out.println(cliente.getNome() + " não pode comprar nenhum produto pois possui pagamentos de assinatura em atraso!");
+            logger.info("{} não pode comprar nenhum produto pois possui pagamentos de assinatura em atraso!", cliente.getNome());
         }
 
     }
@@ -50,7 +55,8 @@ public class Pagamento {
     }
 
     public static void ordenadosPorDataCompra(List<Pagamento> pagamentos){
-        pagamentos.stream().sorted(Comparator.comparing(Pagamento::getDataCompra)).forEach(System.out::println);
+        pagamentos.stream().sorted(Comparator.comparing(Pagamento::getDataCompra))
+                .forEach(pagamento -> logger.info(pagamento.toString()));
     }
 
     public BigDecimal somaDosValoresComOptional(){

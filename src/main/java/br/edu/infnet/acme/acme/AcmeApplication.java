@@ -10,13 +10,19 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @SpringBootApplication
 public class AcmeApplication {
+
+	private static final Logger logger = LogManager.getLogger(AcmeApplication.class);
+
+	private static final String SEPARATOR = "----------------------------------------------------------------------------------------";
+	private static final String VALOR_PADRAO_ASSINATURA = "99.98";// O sonarqube que pediu isso devido ao preço se repetir no código
 
 	public static void main(String[] args) {
 		SpringApplication.run(AcmeApplication.class, args);
@@ -44,97 +50,91 @@ public class AcmeApplication {
 		pagamentos.add(new Pagamento(Arrays.asList(produtos.get(0), produtos.get(2), produtos.get(3)), LocalDate.now().minusMonths(1), clientes.get(2)));
 		pagamentos.add(new Pagamento(Arrays.asList(produtos.get(2)), LocalDate.now().minusMonths(1), clientes.get(0)));
 
-		System.out.println("2 - Ordene e imprima os pagamentos pela data de compra");
+		logger.info("2 - Ordene e imprima os pagamentos pela data de compra");
 		Pagamento.ordenadosPorDataCompra(pagamentos);
 
-		System.out.println("----------------------------------------------------------------------------------------");
+		logger.info(SEPARATOR);
 
-		System.out.println("3 - Calcule e Imprima a soma dos valores de um pagamento com optional");
-		System.out.println(pagamentos.get(0).somaDosValoresComOptional());
+		logger.info("3 - Calcule e Imprima a soma dos valores de um pagamento com optional");
+		logger.info(pagamentos.get(0).somaDosValoresComOptional());
 
-		System.out.println("----------------------------------------------------------------------------------------");
+		logger.info(SEPARATOR);
 
-		System.out.println("3 - Calcule e Imprima a soma dos valores de um pagamento recebendo um Double diretamente");
-		System.out.println(pagamentos.get(0).somaDosValoresComDouble());
+		logger.info("3 - Calcule e Imprima a soma dos valores de um pagamento recebendo um Double diretamente");
+		logger.info(pagamentos.get(0).somaDosValoresComDouble());
 
-		System.out.println("----------------------------------------------------------------------------------------");
+		logger.info(SEPARATOR);
 
-		System.out.println("4 - Calcule o Valor de todos os pagamentos da Lista de pagamentos");
-		System.out.println(Pagamento.totalTodosPagamentos(pagamentos));
+		logger.info("4 - Calcule o Valor de todos os pagamentos da Lista de pagamentos");
+		logger.info(Pagamento.totalTodosPagamentos(pagamentos));
 
-		System.out.println("----------------------------------------------------------------------------------------");
+		logger.info(SEPARATOR);
 
-		System.out.println("5 - Imprima a quantidade de cada Produto vendido.");
+		logger.info("5 - Imprima a quantidade de cada Produto vendido.");
 		Produto.qtdProdutosVendidos(pagamentos);
 
-		System.out.println("----------------------------------------------------------------------------------------");
+		logger.info(SEPARATOR);
 
-		System.out.println("6 - Crie um Mapa de <Cliente, List<Produto> , onde Cliente pode ser o nome do cliente.");
+		logger.info("6 - Crie um Mapa de <Cliente, List<Produto> , onde Cliente pode ser o nome do cliente.");
 		Map<String, List<Produto>> clientesProdutos = Cliente.clientesProdutos(pagamentos);
-		clientesProdutos.forEach((cliente, produtosCliente) -> System.out.println(cliente + " " + produtosCliente));
+		clientesProdutos.forEach((cliente, produtosCliente) -> logger.info("{} {}", cliente, produtosCliente));
 
-		System.out.println("----------------------------------------------------------------------------------------");
+		logger.info(SEPARATOR);
 
-		System.out.println("7 - Qual cliente gastou mais?");
-		System.out.println(Cliente.clienteGastouMais(clientesProdutos));
+		logger.info("7 - Qual cliente gastou mais?");
+		logger.info(Cliente.clienteGastouMais(clientesProdutos));
 
-		System.out.println("----------------------------------------------------------------------------------------");
+		logger.info(SEPARATOR);
 
-		System.out.println("8 - Quanto foi faturado em um determinado mês?");
-		System.out.println(Pagamento.totalFaturadoMes(pagamentos, 6));
+		logger.info("8 - Quanto foi faturado em um determinado mês?");
+		logger.info(Pagamento.totalFaturadoMes(pagamentos, 6));
 
-		System.out.println("----------------------------------------------------------------------------------------");
+		logger.info(SEPARATOR);
 
-		System.out.println("9 - Crie 3 assinaturas com assinaturas de 99.98 reais, sendo 2 deles com assinaturas encerradas");
+		logger.info("9 - Crie 3 assinaturas com assinaturas de 99.98 reais, sendo 2 deles com assinaturas encerradas");
 
 		List<Assinatura> assinaturas = new ArrayList<>();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		assinaturas.add(new Assinatura(new BigDecimal("99.98"),
+		assinaturas.add(new Assinatura(new BigDecimal(VALOR_PADRAO_ASSINATURA),
 				LocalDate.parse("2023-01-01", formatter),
 				LocalDate.parse("2023-05-31", formatter), clientes.get(0), TipoAssinatura.ANUAL));
-		assinaturas.add(new Assinatura(new BigDecimal("99.98"),
+		assinaturas.add(new Assinatura(new BigDecimal(VALOR_PADRAO_ASSINATURA),
 				LocalDate.parse("2023-03-01", formatter),
 				LocalDate.parse("2023-06-30", formatter), clientes.get(1), TipoAssinatura.SEMESTRAL));
-		assinaturas.add(new Assinatura(new BigDecimal("99.98"),
+		assinaturas.add(new Assinatura(new BigDecimal(VALOR_PADRAO_ASSINATURA),
 				LocalDate.parse("2023-04-01", formatter), clientes.get(2), TipoAssinatura.TRIMESTRAL));
 
-		assinaturas.forEach(System.out::println);
+		assinaturas.forEach(assinatura -> logger.info(assinatura.toString()));
 
-		System.out.println("----------------------------------------------------------------------------------------");
+		logger.info(SEPARATOR);
 
-		System.out.println("10 - Imprima o tempo em meses de alguma assinatura ainda ativa.");
+		logger.info("10 - Imprima o tempo em meses de alguma assinatura ainda ativa.");
 		Assinatura.imprimirTempoMesesAtivas(assinaturas);
 
-		System.out.println("----------------------------------------------------------------------------------------");
+		logger.info(SEPARATOR);
 
-		System.out.println("11 - Imprima o tempo de meses entre o start e end de todas assinaturas. Não utilize IFs para assinaturas sem end.");
+		logger.info("11 - Imprima o tempo de meses entre o start e end de todas assinaturas. Não utilize IFs para assinaturas sem end.");
 		Assinatura.imprimirTempoMeses(assinaturas);
 
 
-		System.out.println("----------------------------------------------------------------------------------------");
+		logger.info(SEPARATOR);
 
-		System.out.println("12 - Calcule o valor pago em cada assinatura até o momento. ");
+		logger.info("12 - Calcule o valor pago em cada assinatura até o momento. ");
 		Assinatura.valoresPagosAssinaturas(assinaturas)
-				.forEach((assinatura, total) -> System.out.println(assinatura + " => " + total));
+				.forEach((assinatura, total) -> logger.info("{} => {}", assinatura, total));
 
-		System.out.println("========================================================================================");
-		System.out.println("======================================Entregável 2======================================");
-		System.out.println("========================================================================================");
+		logger.info("========================================================================================");
+		logger.info("======================================Entregável 2======================================");
+		logger.info("========================================================================================");
 
-		System.out.println("Crie 3 tipos de assinatura, anual, semestral e trimestral. \n" +
-				"Crie um método para calcular uma taxa para cada assinatura.\n" +
-				"Obs. Imagine que esse método rodará todo último dia do mes.\n" +
-				"\tAnual -> Isento da taxa.\n" +
-				"\tSemestral -> 3% do valor total da assinatura até o presente momento.\n" +
-				"\tTrimestral -> 5% do valor total da assinatura até o presente momento.\n");
+		logger.info("Crie 3 tipos de assinatura, anual, semestral e trimestral.");
+		logger.info("Crie um método para calcular uma taxa para cada assinatura.");
 
-		assinaturas.forEach(assinatura -> {
-			System.out.println(assinatura + " - TAXA: " + assinatura.calcularTaxa());
-		});
+		assinaturas.forEach(assinatura -> logger.info("{} - TAXA: {}", assinatura, assinatura.calcularTaxa()));
 
-		System.out.println("----------------------------------------------------------------------------------------");
+		logger.info(SEPARATOR);
 
-		System.out.println("Crie um mecanismo para validar clientes que tentarem fazer compras com assinatura em atraso e não deixá-los comprar.");
+		logger.info("Crie um mecanismo para validar clientes que tentarem fazer compras com assinatura em atraso e não deixá-los comprar.");
 		assinaturas.get(0).setPagamentoAtrasado(true);
 		pagamentos.add(new Pagamento(Collections.singletonList(produtos.get(2)), LocalDate.now(), clientes.get(0)));
 

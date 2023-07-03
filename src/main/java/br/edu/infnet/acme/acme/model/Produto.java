@@ -5,6 +5,9 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class Produto {
 
     String nome;
@@ -12,6 +15,8 @@ public class Produto {
     Path file;
 
     BigDecimal preco;
+
+    private static final Logger logger = LogManager.getLogger(Produto.class);
 
     public Produto(String nome, Path file, BigDecimal preco){
         this.nome = nome;
@@ -35,6 +40,6 @@ public class Produto {
         pagamentos.stream()
                 .flatMap(pagamento -> pagamento.getProdutos().stream())
                 .collect(Collectors.groupingBy(Produto::getNome, Collectors.counting()))
-                .forEach((key, value) -> System.out.println(key + ": " + value));
+                .forEach((key, value) -> logger.info("{}: {}", key, value));
     }
 }
