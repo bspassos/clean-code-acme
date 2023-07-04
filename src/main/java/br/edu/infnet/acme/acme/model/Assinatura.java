@@ -1,5 +1,6 @@
 package br.edu.infnet.acme.acme.model;
 
+import br.edu.infnet.acme.acme.interfaces.CalculadoraTaxa;
 import br.edu.infnet.acme.acme.model.enuns.TipoAssinatura;
 
 import java.math.BigDecimal;
@@ -27,6 +28,9 @@ public class Assinatura {
 
     Boolean pagamentoAtrasado = false;
 
+    private CalculadoraTaxa calculadoraTaxa;
+
+
     private static final Logger logger = LogManager.getLogger(Assinatura.class);
 
 
@@ -38,16 +42,19 @@ public class Assinatura {
         cliente.adicionarAssinatura(this);
         this.tipoAssinatura = tipoAssinatura;
         this.pagamentoAtrasado = false;
+
+        if (tipoAssinatura == TipoAssinatura.SEMESTRAL) {
+            this.calculadoraTaxa = new TaxaSemestral();
+        } else if (tipoAssinatura == TipoAssinatura.TRIMESTRAL) {
+            this.calculadoraTaxa = new TaxaTrimestral();
+        } else if (tipoAssinatura == TipoAssinatura.ANUAL){
+            this.calculadoraTaxa = new TaxaAnual();
+        }
     }
 
     public Assinatura(BigDecimal mensalidade, LocalDate begin, LocalDate end, Cliente cliente, TipoAssinatura tipoAssinatura) {
-        this.mensalidade = mensalidade;
-        this.begin = begin;
+        this(mensalidade, begin, cliente, tipoAssinatura);
         this.end = Optional.of(end);
-        this.cliente = cliente;
-        cliente.adicionarAssinatura(this);
-        this.tipoAssinatura = tipoAssinatura;
-        this.pagamentoAtrasado = false;
     }
 
     public BigDecimal getMensalidade() {
@@ -128,19 +135,8 @@ public class Assinatura {
     }
 
     public BigDecimal calcularTaxa() {
-        BigDecimal taxa = BigDecimal.ZERO;
-
-        if (tipoAssinatura == TipoAssinatura.SEMESTRAL) {
-            taxa = mensalidade.multiply(BigDecimal.valueOf(0.03));
-        } else if (tipoAssinatura == TipoAssinatura.TRIMESTRAL) {
-            taxa = mensalidade.multiply(BigDecimal.valueOf(0.05));
-        }
-
-        return taxa;
+        return calculadoraTaxa.calcularTaxa(this.mensalidade);
     }
-
-
-
 
 
 }
